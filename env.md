@@ -1,3 +1,11 @@
+# 解压缩文件
+分part的压缩文件，在linux系统直接unzip可能会出错。
+通过以下的方式即将Part.zip Part.z01等等打包为out.zip再解压缩
+```bash
+zip -FF Part.zip --out out.zip
+unzip out.zip -d dst/
+```
+
 # 测试socks5和http
 
 ```bash
