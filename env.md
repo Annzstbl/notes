@@ -1,4 +1,40 @@
+# zerotier
+
+zerotier是一个虚拟网络工具，它最优先使用的方法是建立一个p2p的直连，而不是通过服务器中转连接。它提供免费的服务器，可以直接使用。
+
+工作的顺序：
+
+1. 服务器会尽力构建一个p2p的通道
+2. 如果实在无法构建p2p通道，会选择通过服务器转发来实现连接（几乎不会出现）
+
+zerotier除了免费服务器之外，可以构建自己的服务器，分为两种：
+
+1. planet: 构建planet的作用并不是转发，而依然与全球免费服务器一致，是负责构建p2p通道，只不过peer访问自建planet更流畅
+
+2. moon：构建peer和peer间的转发连接
+
+通过云服务器构建2个子网中设备的局域网：
+
+选择构建moon服务器，并强制使用转发，这样就可以通过云服务器完成转发。大致的操作流程是：
+
+ 1. 在zerotier源代码中，找到一个tcpxxx启动文件，开启它
+ 2. 在C:\ProgramData\ZeroTier\One\位置放一个local.conf文件，里边内容是：
+
+```json
+{
+
+    "settings": { 
+        "tcpFallbackRelay":"62.234.180.88/443",
+        "forceTcpRelay": true
+    }
+}
+```
+3. 在zerotier网页官网上建立一个network，让各节点加入
+
+> 加入后在网页上各节点显示的外部ip地址应该是一致的，都是local.conf里的那个公网ip地址
+
 # 解压缩文件
+
 分part的压缩文件，在linux系统直接unzip可能会出错。
 通过以下的方式即将Part.zip Part.z01等等打包为out.zip再解压缩
 ```bash
@@ -263,7 +299,28 @@ git branch -a
 
 需要将proxy中https更改为http
 
+> 好像不是由于https和http的问题引起的，即使proxy填写为http也同样会报该错误
+
 # conda
+
+## conda环境迁移
+
+```bash
+#源机器
+conda activate ${env_name}
+conda install -c conda-forge conda-pack
+conda pack -n ${env_name} -o ${env_name}.tar.gz
+#如果有develop模式的包，必须先卸载
+pip uninstall ${develop_lib}
+
+#目标机器
+cd ${conda_root_path}/env
+mkdir ${env_name}
+tar -xzf ${env_name}.tar.gz -C ${env_name}
+#验证是否成功
+```
+
+
 
 ## conda环境
 
@@ -1025,4 +1082,22 @@ python demo/image_demo.py demo/demo.jpg rtmdet_tiny_8xb32-300e_coco.py --weights
 
 - [ ] 首层不训练问题：DiffDet训练中，ResNet的frozen_stages=1，导致首层不训练。文件地址：mmdet/models/backbones/resnet.py，行数613。
 - [ ] 
+
+# MMRotate
+
+```bash
+conda create -n mmrotate python=3.8
+pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+
+pip install openmim
+mim install mmengine
+mim install mmcv-full
+mim install mmdet\<3.0.0
+git clone https://github.com/open-mmlab/mmrotate.git
+cd mmrotate
+pip install -r requirements/build.txt
+pip install -v -e .
+
+
+```
 
